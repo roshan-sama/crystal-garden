@@ -1,16 +1,20 @@
-//@ts-nocheck
 import React, { useRef, useEffect, useState } from "react";
 
-const Canvas = (props) => {
+const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   const { backgroundImage } = props;
   const canvasRef = useRef(null);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [backgroundImg, setBackgroundImg] = useState(null);
+  const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
+    null
+  );
 
   const initialize = () => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    canvas.width = 1152; // Removed px from string - width/height should be numbers
+    const canvas = canvasRef.current as unknown as HTMLCanvasElement;
+    if (!canvas) {
+      console.error("Canvas ref not found in initialize function");
+      return;
+    }
+    canvas.width = 1152;
     canvas.height = 648;
 
     // Load the background image if provided
@@ -31,7 +35,7 @@ const Canvas = (props) => {
     initialize();
   }, [backgroundImage]);
 
-  const draw = (ctx, frameCount) => {
+  const draw = (ctx: CanvasRenderingContext2D, frameCount: number) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Draw background image if it's loaded
@@ -47,10 +51,14 @@ const Canvas = (props) => {
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current as unknown as HTMLCanvasElement;
     const context = canvas.getContext("2d");
+    if (!context) {
+      console.error("Canvas Context not found");
+      return;
+    }
     let frameCount = 0;
-    let animationFrameId;
+    let animationFrameId = -1;
 
     const render = () => {
       frameCount++;
