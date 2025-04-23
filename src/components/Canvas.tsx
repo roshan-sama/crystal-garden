@@ -81,10 +81,10 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       const progress = radius / maxRadius;
 
       // Calculate transparency: starts at 100% opacity (0% transparent) and fades to 20% opacity (80% transparent)
-      const alpha = 1 - progress * 0.8;
+      const alpha = 0.6 * (1 - progress * 0.8);
 
       // Calculate line width: starts at 4px and grows to 18px
-      const lineWidth = 8 + progress * 24;
+      const lineWidth = 2 + progress * 30;
 
       // Set stroke style
       ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -105,21 +105,6 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       currentTime: number
     ) => {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-      // Draw background image if it's loaded
-      if (backgroundImg && imgLoaded) {
-        ctx.drawImage(backgroundImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
-      }
-
-      if (backgroundOutline) {
-        ctx.drawImage(
-          backgroundOutline,
-          0,
-          0,
-          ctx.canvas.width,
-          ctx.canvas.height
-        );
-      }
 
       // Draw the animated circle
       ctx.fillStyle = "#000000";
@@ -186,7 +171,54 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     };
   }, [draw]);
 
-  return <canvas ref={canvasRef} onClick={handleCanvasClick} {...props} />;
+  return (
+    <div style={{ position: "relative", width: "1152px", height: "648px" }}>
+      {/* Background image layer */}
+      {backgroundImg && imgLoaded && (
+        <img
+          src={backgroundImage}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+          alt="Background"
+        />
+      )}
+
+      {/* Main canvas for animations */}
+      <canvas
+        ref={canvasRef}
+        onClick={handleCanvasClick}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+        }}
+        {...props}
+      />
+
+      {/* Outline layer on top */}
+      {backgroundOutline && (
+        <img
+          src="/images/garden-outline.png"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+          alt="Outline"
+        />
+      )}
+    </div>
+  );
 };
 
 export default Canvas;
