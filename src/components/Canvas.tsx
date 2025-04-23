@@ -1,15 +1,20 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   const { backgroundImage } = props;
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
     null
   );
   const [backgroundOutline, setBackgroundOutline] =
     useState<HTMLImageElement | null>(null);
-  const [pulsingState, setPulsingState] = useState<{currentRadius: number, x: number, y: number} | null>(null)
+  const [pulsingState, setPulsingState] = useState<{
+    currentRadius: number;
+    x: number;
+    y: number;
+    lastFrameTime: number;
+  } | null>(null);
 
   const initialize = () => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
@@ -20,7 +25,6 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     canvas.width = 1152;
     canvas.height = 648;
     // diagonal = sqrt (1152 ** 2 + 648 ** 2) = 1322
-
     // Load the background image if provided
     if (backgroundImage) {
       const img = new Image();
@@ -32,7 +36,6 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       img.onerror = (err) => {
         console.error("Error loading the background image:", err);
       };
-
       const outlineImg = new Image();
       outlineImg.src = "/images/garden-outline.png";
       outlineImg.onload = () => {
@@ -45,56 +48,118 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     initialize();
   }, [backgroundImage]);
 
-  const draw = (ctx: CanvasRenderingContext2D, frameCount: number) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  // Handle user interaction with the canvas
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    // Draw background image if it's loaded
-    if (backgroundImg && imgLoaded) {
-      ctx.drawImage(backgroundImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
-    }
+    // Get the canvas position
+    const rect = canvas.getBoundingClientRect();
 
-    if (backgroundOutline) {
-      ctx.drawImage(
-        backgroundOutline,
-        0,
-        0,
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-    }
+    // Calculate mouse position relative to canvas
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
-    // Draw the animated circle
-    ctx.fillStyle = "#000000";
-    ctx.beginPath();
-    ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // Draw a sound pulse if needed
-    // setState determines pulsing
-    if(pulsingState){
-      // pulseVelocity = 1322 px / 3.5 seconds
-      // Get new pulse radius by adding velocity * time since last frame using math to get the time since the last frame rendered
-      // update the pulsing state
-
-      // The pulse should be a circle, with a transparent inside, centered on the x and y values stored in pulsing state.
-      // The pulse should have a white outline
-      // The transparency of this outline should be 0% at the start of the pulse and be 80% transparent when it is max
-
-      // The pulse should also have a width of 4 pixels at the start, and grow to 18 pixels when it reaches max radius
-
-      // Once the radius exceeds 1322 px, the pulsingState should be set to null
-    }else {
-      const userTouchOnCanvas = "" // Get x and y coordinates
-      if(userTouchOnCanvas){
-        setPulsingState({x: from input, y: from input, radius: 32})
-      }
-    }
+    // Start a new pulse
+    setPulsingState({
+      x,
+      y,
+      currentRadius: 32, // Starting radius
+      lastFrameTime: performance.now(),
+    });
   };
 
-  const drawSoundPulse = (ctx: CanvasRenderingContext2D, frameCount: number) => {
-    // Last 3.5 seconds
-    // 
-  }
+  const drawSoundPulse = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      x: number,
+      y: number,
+      radius: number,
+      maxRadius: number
+    ) => {
+      // Calculate progress ratio (0 to 1)
+      const progress = radius / maxRadius;
+
+      // Calculate transparency: starts at 100% opacity (0% transparent) and fades to 20% opacity (80% transparent)
+      const alpha = 1 - progress * 0.8;
+
+      // Calculate line width: starts at 4px and grows to 18px
+      const lineWidth = 8 + progress * 24;
+
+      // Set stroke style
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.lineWidth = lineWidth;
+
+      // Draw the pulse circle
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+    },
+    []
+  );
+
+  const draw = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      frameCount: number,
+      currentTime: number
+    ) => {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      // Draw background image if it's loaded
+      if (backgroundImg && imgLoaded) {
+        ctx.drawImage(backgroundImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+      }
+
+      if (backgroundOutline) {
+        ctx.drawImage(
+          backgroundOutline,
+          0,
+          0,
+          ctx.canvas.width,
+          ctx.canvas.height
+        );
+      }
+
+      // Draw the animated circle
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Draw a sound pulse if needed
+      if (pulsingState) {
+        const { x, y, currentRadius, lastFrameTime } = pulsingState;
+
+        // Calculate time since last frame in seconds
+        const deltaTime = (currentTime - lastFrameTime) / 1000;
+
+        // pulseVelocity = 1322 px / 3.5 seconds = 377.7 px/s
+        const pulseVelocity = 1322 / 2.5;
+
+        // Calculate new radius based on velocity and time elapsed
+        const newRadius = currentRadius + pulseVelocity * deltaTime;
+
+        // Draw the pulse
+        drawSoundPulse(ctx, x, y, newRadius, 1322);
+
+        // Check if pulse is complete
+        if (newRadius >= 1322) {
+          // Pulse has reached max size, reset pulsingState
+          setPulsingState(null);
+        } else {
+          // Update pulsingState with new radius and time
+          setPulsingState({
+            x,
+            y,
+            currentRadius: newRadius,
+            lastFrameTime: currentTime,
+          });
+        }
+      }
+    },
+    [backgroundImg, imgLoaded, backgroundOutline, pulsingState, drawSoundPulse]
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
@@ -103,23 +168,25 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       console.error("Canvas Context not found");
       return;
     }
+
     let frameCount = 0;
     let animationFrameId = -1;
 
-    const render = () => {
+    const render = (time: number) => {
       frameCount++;
-      draw(context, frameCount);
+      draw(context, frameCount, time);
       animationFrameId = window.requestAnimationFrame(render);
     };
 
-    render();
+    // Pass the timestamp to the render function
+    animationFrameId = window.requestAnimationFrame(render);
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [draw, imgLoaded, backgroundImg]); // Include imgLoaded and backgroundImg in the dependency array
+  }, [draw]);
 
-  return <canvas ref={canvasRef} {...props} />;
+  return <canvas ref={canvasRef} onClick={handleCanvasClick} {...props} />;
 };
 
 export default Canvas;
