@@ -12,11 +12,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./components/ui/select";
+import { ICrystal } from "./interfaces/ICrystal";
 
 function App() {
   const [backgroundSrc, setBackgroundSrc] = useState(
     "/images/abs158-floral.png"
   );
+  const [crystals, setCrystals] = useState<ICrystal[]>([
+    {
+      x: 300,
+      y: 300,
+      color: "test",
+      scale: 1,
+      tone: 450,
+    },
+  ]);
 
   return (
     <div
@@ -43,7 +53,7 @@ function App() {
         </Select>
       </div>
       <div className="mx-auto">
-        <Canvas backgroundImage={backgroundSrc} />
+        <Canvas backgroundImage={backgroundSrc} crystals={crystals} />
       </div>
     </div>
   );

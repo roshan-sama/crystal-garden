@@ -1,7 +1,12 @@
+import { ICrystal } from "@/interfaces/ICrystal";
 import React, { useRef, useEffect, useState, useCallback } from "react";
+// Import a sound library for crystal tones
+import * as Tone from "tone";
 
-const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
-  const { backgroundImage } = props;
+const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
+  props
+) => {
+  const { backgroundImage, crystals } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
@@ -15,6 +20,42 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     y: number;
     lastFrameTime: number;
   } | null>(null);
+  // Track which crystals have already emitted their tone during current pulse
+  const [activatedCrystals, setActivatedCrystals] = useState<Set<number>>(
+    new Set()
+  );
+
+  // Initialize synthesizer for crystal tones
+  const synth = useRef<Tone.Synth | null>(null);
+
+  useEffect(() => {
+    // Initialize the synthesizer
+    synth.current = new Tone.Synth({
+      oscillator: {
+        type: "sine",
+      },
+      envelope: {
+        attack: 0.02,
+        decay: 0.1,
+        sustain: 0.3,
+        release: 1.5,
+      },
+    }).toDestination();
+
+    // Start Tone.js audio context on user interaction (required by browsers)
+    const startAudio = () => {
+      if (Tone.context.state !== "running") {
+        Tone.start();
+      }
+      document.removeEventListener("click", startAudio);
+    };
+    document.addEventListener("click", startAudio);
+
+    return () => {
+      document.removeEventListener("click", startAudio);
+      synth.current?.dispose();
+    };
+  }, []);
 
   const initialize = () => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
@@ -47,6 +88,13 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   useEffect(() => {
     initialize();
   }, [backgroundImage]);
+
+  // Reset activated crystals when starting a new pulse
+  useEffect(() => {
+    if (pulsingState) {
+      setActivatedCrystals(new Set());
+    }
+  }, [pulsingState]);
 
   // Handle user interaction with the canvas
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -98,6 +146,63 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     []
   );
 
+  // Calculate distance between two points
+  const getDistance = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ): number => {
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+  };
+
+  // Draw a crystal on the canvas
+  const drawCrystal = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      crystal: ICrystal,
+      isActivated: boolean
+    ) => {
+      const { x, y, scale, color } = crystal;
+      const radius = 16 * scale; // Base size is 16, scaled by crystal's scale property
+
+      // Draw crystal circle
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+
+      console.log("Drawing crystall", x, y);
+
+      // Fill with color based on activation state
+      if (isActivated) {
+        // Activated crystal: use its color with high brightness
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 20;
+      } else {
+        // Inactive crystal: darker version of its color
+        ctx.fillStyle = "#33ff33";
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fill();
+
+      // Reset shadow for other drawings
+      ctx.shadowBlur = 0;
+    },
+    []
+  );
+
+  // Play a crystal's tone
+  const playCrystalTone = useCallback((frequency: number) => {
+    if (!synth.current) return;
+
+    // Convert frequency to note duration based on its value
+    // Higher frequencies get shorter durations
+    const duration = Math.max(0.5, 1.5 - frequency / 1000);
+    console.log("layg ton");
+    synth.current.triggerAttackRelease(frequency, duration);
+  }, []);
+
   const draw = useCallback(
     (
       ctx: CanvasRenderingContext2D,
@@ -111,6 +216,14 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       ctx.beginPath();
       ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
       ctx.fill();
+
+      // Draw all crystals (inactive by default)
+      if (crystals && crystals.length > 0) {
+        crystals.forEach((crystal, index) => {
+          const isActivated = activatedCrystals.has(index);
+          drawCrystal(ctx, crystal, isActivated);
+        });
+      }
 
       // Draw a sound pulse if needed
       if (pulsingState) {
@@ -128,6 +241,31 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
         // Draw the pulse
         drawSoundPulse(ctx, x, y, newRadius, 1322);
 
+        // Process crystal behavior when pulse reaches them
+        if (crystals && crystals.length > 0) {
+          crystals.forEach((crystal, index) => {
+            // Check if this crystal has already been activated
+            if (!activatedCrystals.has(index)) {
+              // Calculate distance from pulse center to this crystal
+              const distance = getDistance(x, y, crystal.x, crystal.y);
+
+              // If the pulse radius has just exceeded the distance to the crystal
+              if (currentRadius < distance && newRadius >= distance) {
+                // Play the crystal's tone
+                playCrystalTone(crystal.tone);
+
+                // Add this crystal to the activated set
+                setActivatedCrystals((prev) => {
+                  const newSet = new Set(prev);
+                  newSet.add(index);
+                  return newSet;
+                });
+              }
+            } else {
+            }
+          });
+        }
+
         // Check if pulse is complete
         if (newRadius >= 1322) {
           // Pulse has reached max size, reset pulsingState
@@ -143,7 +281,17 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
         }
       }
     },
-    [backgroundImg, imgLoaded, backgroundOutline, pulsingState, drawSoundPulse]
+    [
+      backgroundImg,
+      imgLoaded,
+      backgroundOutline,
+      pulsingState,
+      drawSoundPulse,
+      crystals,
+      activatedCrystals,
+      drawCrystal,
+      playCrystalTone,
+    ]
   );
 
   useEffect(() => {
@@ -174,7 +322,7 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   return (
     <div style={{ position: "relative", width: "1152px", height: "648px" }}>
       {/* Background image layer */}
-      {backgroundImg && imgLoaded && (
+      {/* {backgroundImg && imgLoaded && (
         <img
           src={backgroundImage}
           style={{
@@ -186,7 +334,7 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
           }}
           alt="Background"
         />
-      )}
+      )} */}
 
       {/* Main canvas for animations */}
       <canvas
