@@ -9,6 +9,7 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   );
   const [backgroundOutline, setBackgroundOutline] =
     useState<HTMLImageElement | null>(null);
+  const [pulsingState, setPulsingState] = useState<{currentRadius: number, x: number, y: number} | null>(null)
 
   const initialize = () => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
@@ -18,6 +19,7 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     }
     canvas.width = 1152;
     canvas.height = 648;
+    // diagonal = sqrt (1152 ** 2 + 648 ** 2) = 1322
 
     // Load the background image if provided
     if (backgroundImage) {
@@ -66,7 +68,33 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     ctx.beginPath();
     ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
     ctx.fill();
+
+    // Draw a sound pulse if needed
+    // setState determines pulsing
+    if(pulsingState){
+      // pulseVelocity = 1322 px / 3.5 seconds
+      // Get new pulse radius by adding velocity * time since last frame using math to get the time since the last frame rendered
+      // update the pulsing state
+
+      // The pulse should be a circle, with a transparent inside, centered on the x and y values stored in pulsing state.
+      // The pulse should have a white outline
+      // The transparency of this outline should be 0% at the start of the pulse and be 80% transparent when it is max
+
+      // The pulse should also have a width of 4 pixels at the start, and grow to 18 pixels when it reaches max radius
+
+      // Once the radius exceeds 1322 px, the pulsingState should be set to null
+    }else {
+      const userTouchOnCanvas = "" // Get x and y coordinates
+      if(userTouchOnCanvas){
+        setPulsingState({x: from input, y: from input, radius: 32})
+      }
+    }
   };
+
+  const drawSoundPulse = (ctx: CanvasRenderingContext2D, frameCount: number) => {
+    // Last 3.5 seconds
+    // 
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
