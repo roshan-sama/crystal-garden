@@ -26,10 +26,10 @@ function App() {
 
   return (
     <div
-      className="flex flex-col w-screen h-screen"
+      className="flex flex-col w-screen h-screen pt-2"
       style={{ backgroundColor: "black" }}
     >
-      <div className="text-white m-auto rounded-md p-4">
+      <div className="text-white w-[1152px] mx-auto rounded-md px-4">
         <span>Your Garden is</span>
         <Select value={backgroundSrc} onValueChange={setBackgroundSrc}>
           <SelectTrigger className="w-[180px]">
@@ -48,7 +48,7 @@ function App() {
           </SelectContent>
         </Select>
       </div>
-      <div className="m-auto">
+      <div className="mx-auto">
         <Canvas backgroundImage={backgroundSrc} />
       </div>
     </div>

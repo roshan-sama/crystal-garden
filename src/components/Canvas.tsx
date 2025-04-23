@@ -7,6 +7,8 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
     null
   );
+  const [backgroundOutline, setBackgroundOutline] =
+    useState<HTMLImageElement | null>(null);
 
   const initialize = () => {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
@@ -28,6 +30,12 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
       img.onerror = (err) => {
         console.error("Error loading the background image:", err);
       };
+
+      const outlineImg = new Image();
+      outlineImg.src = "/images/garden-outline.png";
+      outlineImg.onload = () => {
+        setBackgroundOutline(outlineImg);
+      };
     }
   };
 
@@ -41,6 +49,16 @@ const Canvas: React.FC<{ backgroundImage: string }> = (props) => {
     // Draw background image if it's loaded
     if (backgroundImg && imgLoaded) {
       ctx.drawImage(backgroundImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    if (backgroundOutline) {
+      ctx.drawImage(
+        backgroundOutline,
+        0,
+        0,
+        ctx.canvas.width,
+        ctx.canvas.height
+      );
     }
 
     // Draw the animated circle
