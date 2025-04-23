@@ -5,6 +5,15 @@ import "./App.css";
 import Canvas from "./components/Canvas";
 
 function App() {
+  const [backgroundSrc, setBackgroundSrc] = useState(
+    "/images/abs158-floral.png"
+  );
+
+  //@ts-ignore
+  const handleImageChange = (e) => {
+    setBackgroundSrc(e.target.value);
+  };
+
   return <Canvas />;
 }
 
