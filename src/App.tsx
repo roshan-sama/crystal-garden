@@ -18,12 +18,6 @@ function App() {
     "/images/abs158-floral.png"
   );
 
-  //@ts-ignore
-  const handleImageChange = (e) => {
-    console.log(e, "e tg");
-    setBackgroundSrc(e.target.value);
-  };
-
   return (
     <div
       className="flex flex-col w-screen h-screen pt-2"
