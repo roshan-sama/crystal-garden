@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -18,6 +18,7 @@ function App() {
   const [backgroundSrc, setBackgroundSrc] = useState(
     "/images/abs158-floral.png"
   );
+  const crystalPathToImageMap = new Map<string, HTMLImageElement>();
   const [crystals, setCrystals] = useState<ICrystal[]>([
     {
       x: 300,
@@ -25,8 +26,21 @@ function App() {
       color: "test",
       scale: 1,
       tone: 450,
+      spritePath: "/images/crystals/base-crystal.png",
     },
   ]);
+
+  useEffect(() => {
+    const crystalPaths = ["/images/crystals/base-crystal.png"];
+    crystalPaths.forEach((path) => {
+      const img = new Image();
+      img.src = path;
+      img.onload = () => crystalPathToImageMap.set(path, img);
+    });
+    setTimeout(() => {
+      console.log(crystalPathToImageMap, "asd");
+    }, 5000);
+  }, []);
 
   return (
     <div
@@ -53,7 +67,11 @@ function App() {
         </Select>
       </div>
       <div className="mx-auto">
-        <Canvas backgroundImage={backgroundSrc} crystals={crystals} />
+        <Canvas
+          backgroundImage={backgroundSrc}
+          crystals={crystals}
+          crystalPathToImageMap={crystalPathToImageMap}
+        />
       </div>
     </div>
   );

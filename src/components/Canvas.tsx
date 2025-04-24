@@ -3,10 +3,12 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 // Import a sound library for crystal tones
 import * as Tone from "tone";
 
-const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
-  props
-) => {
-  const { backgroundImage, crystals } = props;
+const Canvas: React.FC<{
+  backgroundImage: string;
+  crystals: ICrystal[];
+  crystalPathToImageMap: Map<string, HTMLImageElement>;
+}> = (props) => {
+  const { backgroundImage, crystals, crystalPathToImageMap } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
@@ -163,31 +165,32 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
       crystal: ICrystal,
       isActivated: boolean
     ) => {
-      const { x, y, scale, color } = crystal;
-      const radius = 16 * scale; // Base size is 16, scaled by crystal's scale property
+      const { x, y, scale, color, spritePath } = crystal;
 
-      // Draw crystal circle
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      const crystalImage = crystalPathToImageMap.get(spritePath);
 
-      console.log("Drawing crystall", x, y);
+      // Draw crystal
+      console.log("Drawing crystal", x, y, isActivated);
+      crystalImage &&
+        ctx.drawImage(crystalImage, x, y, 128 * scale, 128 * scale);
+      // ctx.arc(x, y, radius, 0, 2 * Math.PI);
 
       // Fill with color based on activation state
-      if (isActivated) {
-        // Activated crystal: use its color with high brightness
-        ctx.fillStyle = color;
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 20;
-      } else {
-        // Inactive crystal: darker version of its color
-        ctx.fillStyle = "#33ff33";
-        ctx.shadowBlur = 0;
-      }
+      // if (isActivated) {
+      //   // Activated crystal: use its color with high brightness
+      //   ctx.fillStyle = "#ff3333";
+      //   ctx.shadowColor = color;
+      //   ctx.shadowBlur = 20;
+      // } else {
+      //   // Inactive crystal: darker version of its color
+      //   ctx.fillStyle = "#33ff33";
+      //   ctx.shadowBlur = 0;
+      // }
 
-      ctx.fill();
+      // ctx.fill();
 
-      // Reset shadow for other drawings
-      ctx.shadowBlur = 0;
+      // // Reset shadow for other drawings
+      // ctx.shadowBlur = 0;
     },
     []
   );
@@ -210,20 +213,6 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
       currentTime: number
     ) => {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-      // Draw the animated circle
-      ctx.fillStyle = "#000000";
-      ctx.beginPath();
-      ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
-      ctx.fill();
-
-      // Draw all crystals (inactive by default)
-      if (crystals && crystals.length > 0) {
-        crystals.forEach((crystal, index) => {
-          const isActivated = activatedCrystals.has(index);
-          drawCrystal(ctx, crystal, isActivated);
-        });
-      }
 
       // Draw a sound pulse if needed
       if (pulsingState) {
@@ -261,7 +250,6 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
                   return newSet;
                 });
               }
-            } else {
             }
           });
         }
@@ -270,6 +258,7 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
         if (newRadius >= 1322) {
           // Pulse has reached max size, reset pulsingState
           setPulsingState(null);
+          setActivatedCrystals(new Set());
         } else {
           // Update pulsingState with new radius and time
           setPulsingState({
@@ -279,6 +268,14 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
             lastFrameTime: currentTime,
           });
         }
+      }
+
+      // Draw all crystals (inactive by default)
+      if (crystals && crystals.length > 0) {
+        crystals.forEach((crystal, index) => {
+          const isActivated = activatedCrystals.has(index);
+          drawCrystal(ctx, crystal, isActivated);
+        });
       }
     },
     [
@@ -322,7 +319,7 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
   return (
     <div style={{ position: "relative", width: "1152px", height: "648px" }}>
       {/* Background image layer */}
-      {/* {backgroundImg && imgLoaded && (
+      {backgroundImg && imgLoaded && (
         <img
           src={backgroundImage}
           style={{
@@ -334,7 +331,7 @@ const Canvas: React.FC<{ backgroundImage: string; crystals: ICrystal[] }> = (
           }}
           alt="Background"
         />
-      )} */}
+      )}
 
       {/* Main canvas for animations */}
       <canvas

@@ -9,4 +9,6 @@ export interface ICrystal {
   color: string;
   /** Simple tone in Hz */
   tone: number;
+  /** Path to the image of this crystal */
+  spritePath: string;
 }
