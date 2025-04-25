@@ -26,12 +26,18 @@ function App() {
       color: "test",
       scale: 1,
       tone: 450,
-      spritePath: "/images/crystals/base-crystal.png",
+      spritePath: "/images/crystals/triangle-crystal.png",
     },
   ]);
 
   useEffect(() => {
-    const crystalPaths = ["/images/crystals/base-crystal.png"];
+    const crystalPaths = [
+      "/images/crystals/base-crystal.png",
+      "/images/crystals/butterfly-crystal.png",
+      "/images/crystals/cube-crystal.png",
+      "/images/crystals/part-crystal.png",
+      "/images/crystals/triangle-crystal.png",
+    ];
     crystalPaths.forEach((path) => {
       const img = new Image();
       img.src = path;
