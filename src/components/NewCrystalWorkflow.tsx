@@ -7,7 +7,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Button } from "../components/ui/button";
 import {
   Carousel,
@@ -17,7 +22,6 @@ import {
   CarouselPrevious,
 } from "../components/ui/carousel";
 import { Slider } from "../components/ui/slider";
-import { ICrystal } from "../interfaces/ICrystal";
 
 const crystalOptions = [
   "/images/crystals/base-crystal.png",
@@ -119,7 +123,7 @@ const NewCrystalWorkflow = ({ onAddCrystal }) => {
           <div className="col-span-1">
             <Tabs defaultValue="crystal">
               <TabsList className="grid grid-cols-3">
-                <TabsTrigger value="crystal">Crystal Type</TabsTrigger>
+                <TabsTrigger value="crystal">Shape</TabsTrigger>
                 <TabsTrigger value="color">Color</TabsTrigger>
                 <TabsTrigger value="tone">Tone</TabsTrigger>
               </TabsList>
@@ -127,15 +131,12 @@ const NewCrystalWorkflow = ({ onAddCrystal }) => {
               {/* Crystal Selection Tab */}
               <TabsContent value="crystal" className="space-y-4">
                 <h3 className="text-lg font-medium">Select Crystal Shape</h3>
-                <Carousel className="w-full">
+                <Carousel className="w-4/5 mx-auto text-black">
                   <CarouselContent>
                     {crystalOptions.map((crystal, index) => (
-                      <CarouselItem
-                        key={index}
-                        className="basis-1/2 md:basis-1/3"
-                      >
+                      <CarouselItem key={index}>
                         <div
-                          className={`bg-gray-800 p-4 rounded-lg h-40 flex items-center justify-center cursor-pointer ${
+                          className={`bg-gray-800 p-4 m-1 rounded-lg h-40 flex items-center justify-center cursor-pointer ${
                             selectedCrystal === crystal
                               ? "ring-2 ring-white"
                               : ""

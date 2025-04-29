@@ -3,6 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import Canvas from "./components/Canvas";
+import NewCrystalWorkflow from "./components/NewCrystalWorkflow";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ function App() {
   const [backgroundSrc, setBackgroundSrc] = useState(
     "/images/abs158-floral.png"
   );
+  const crystalPathToImageMap = new Map<string, HTMLImageElement>();
   const [crystals, setCrystals] = useState<ICrystal[]>([]);
 
   useEffect(() => {
@@ -31,12 +33,17 @@ function App() {
     crystalPaths.forEach((path) => {
       const img = new Image();
       img.src = path;
-      // img.onload = () => crystalPathToImageMap.set(path, img);
+      img.onload = () => crystalPathToImageMap.set(path, img);
     });
     setTimeout(() => {
-      // console.log(crystalPathToImageMap, "asd");
+      console.log(crystalPathToImageMap, "asd");
     }, 5000);
   }, []);
+
+  // Handler function to add a new crystal to the collection
+  const handleAddCrystal = (newCrystal: ICrystal) => {
+    setCrystals((prevCrystals) => [...prevCrystals, newCrystal]);
+  };
 
   return (
     <div
@@ -63,24 +70,13 @@ function App() {
         </Select>
       </div>
       <div className="mx-auto">
-        <Canvas
-          backgroundImage={backgroundSrc}
-          crystals={crystals}
-          // crystalPathToImageMap={crystalPathToImageMap}
-        />
+        <Canvas backgroundImage={backgroundSrc} crystals={crystals} />
       </div>
+
+      {/* Add the NewCrystalWorkflow component */}
+      <NewCrystalWorkflow onAddCrystal={handleAddCrystal} />
     </div>
   );
 }
 
 export default App;
-
-/**I have this app component that needs a new component, perhaps called NewCrystalWorkflow,
- * that's lets users create and place a new crystal. Assume that the Canvas component handles the display
- * of the crystals
- * Create just that component, or a series of components that do the following
- * 1) A UI modal, that on the left side has three tabs, one for crystal selection, where we have a shadcn carousel that displays
- * each of the crystal images
- * 2) the second tab allows for color selection of the crystal, create a list of 16 colors you think would be good
- * 3) the third tab allows for tone selection. Get creative with how to do this, we need to provide tones from the C major scale, from bass clef c to 2 octaves higher than middle C
- * */
