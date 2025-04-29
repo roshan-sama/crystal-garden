@@ -1,0 +1,275 @@
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+import { Button } from "../components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../components/ui/carousel";
+import { Slider } from "../components/ui/slider";
+import { ICrystal } from "../interfaces/ICrystal";
+
+const crystalOptions = [
+  "/images/crystals/base-crystal.png",
+  "/images/crystals/butterfly-crystal.png",
+  "/images/crystals/cube-crystal.png",
+  "/images/crystals/part-crystal.png",
+  "/images/crystals/triangle-crystal.png",
+];
+
+const colorOptions = [
+  { name: "Ruby Red", value: "#E32636" },
+  { name: "Amethyst Purple", value: "#9966CC" },
+  { name: "Sapphire Blue", value: "#0F52BA" },
+  { name: "Emerald Green", value: "#50C878" },
+  { name: "Topaz Yellow", value: "#FFBE7D" },
+  { name: "Diamond White", value: "#E6E6FA" },
+  { name: "Onyx Black", value: "#353935" },
+  { name: "Opal Teal", value: "#40E0D0" },
+  { name: "Rose Quartz", value: "#F7CAC9" },
+  { name: "Amber Orange", value: "#FFBF00" },
+  { name: "Jade Green", value: "#00A86B" },
+  { name: "Turquoise", value: "#40E0D0" },
+  { name: "Aquamarine", value: "#7FFFD4" },
+  { name: "Garnet", value: "#733635" },
+  { name: "Peridot", value: "#AAFF00" },
+  { name: "Tanzanite Blue", value: "#3B429F" },
+];
+
+// C major scale frequencies - C3 (bass) through C5 (two octaves above middle C)
+const toneOptions = [
+  { note: "C3", frequency: 130.81 },
+  { note: "D3", frequency: 146.83 },
+  { note: "E3", frequency: 164.81 },
+  { note: "F3", frequency: 174.61 },
+  { note: "G3", frequency: 196.0 },
+  { note: "A3", frequency: 220.0 },
+  { note: "B3", frequency: 246.94 },
+  { note: "C4 (Middle C)", frequency: 261.63 },
+  { note: "D4", frequency: 293.66 },
+  { note: "E4", frequency: 329.63 },
+  { note: "F4", frequency: 349.23 },
+  { note: "G4", frequency: 392.0 },
+  { note: "A4", frequency: 440.0 },
+  { note: "B4", frequency: 493.88 },
+  { note: "C5", frequency: 523.25 },
+];
+
+const NewCrystalWorkflow = ({ onAddCrystal }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCrystal, setSelectedCrystal] = useState(crystalOptions[0]);
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0].value);
+  const [selectedTone, setSelectedTone] = useState(toneOptions[7]); // Default to middle C
+  const [previewCrystal, setPreviewCrystal] = useState(null);
+
+  // Create preview when selections change
+  const updatePreview = () => {
+    // In a real implementation, you might want to use a ref to a canvas element here
+    // to generate the crystalCanvas property
+    const dummyCanvas = document.createElement("canvas");
+
+    setPreviewCrystal({
+      spritePath: selectedCrystal,
+      color: selectedColor,
+      tone: selectedTone.frequency,
+      scale: 1,
+      x: 0, // These will be set when the crystal is placed
+      y: 0,
+      crystalCanvas: dummyCanvas,
+    });
+  };
+
+  const handleAddCrystal = () => {
+    const newCrystal = {
+      ...previewCrystal,
+      x: Math.random() * 800 + 100, // Random position for now
+      y: Math.random() * 400 + 100, // Could be improved with drag and drop
+    };
+
+    onAddCrystal(newCrystal);
+    setIsOpen(false);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button className="fixed bottom-4 right-4 rounded-full p-4 bg-indigo-600 hover:bg-indigo-700">
+          Add Crystal
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[900px] bg-gray-900 text-white">
+        <DialogHeader>
+          <DialogTitle>Create New Crystal</DialogTitle>
+          <DialogDescription>
+            Design your crystal by selecting its appearance, color, and tone.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-6">
+          <div className="col-span-1">
+            <Tabs defaultValue="crystal">
+              <TabsList className="grid grid-cols-3">
+                <TabsTrigger value="crystal">Crystal Type</TabsTrigger>
+                <TabsTrigger value="color">Color</TabsTrigger>
+                <TabsTrigger value="tone">Tone</TabsTrigger>
+              </TabsList>
+
+              {/* Crystal Selection Tab */}
+              <TabsContent value="crystal" className="space-y-4">
+                <h3 className="text-lg font-medium">Select Crystal Shape</h3>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {crystalOptions.map((crystal, index) => (
+                      <CarouselItem
+                        key={index}
+                        className="basis-1/2 md:basis-1/3"
+                      >
+                        <div
+                          className={`bg-gray-800 p-4 rounded-lg h-40 flex items-center justify-center cursor-pointer ${
+                            selectedCrystal === crystal
+                              ? "ring-2 ring-white"
+                              : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedCrystal(crystal);
+                            updatePreview();
+                          }}
+                        >
+                          <img
+                            src={crystal}
+                            alt={`Crystal option ${index + 1}`}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              </TabsContent>
+
+              {/* Color Selection Tab */}
+              <TabsContent value="color" className="space-y-4">
+                <h3 className="text-lg font-medium">Select Crystal Color</h3>
+                <div className="grid grid-cols-4 gap-3">
+                  {colorOptions.map((color, index) => (
+                    <div
+                      key={index}
+                      className={`h-16 rounded-lg cursor-pointer ${
+                        selectedColor === color.value ? "ring-2 ring-white" : ""
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      onClick={() => {
+                        setSelectedColor(color.value);
+                        updatePreview();
+                      }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Tone Selection Tab */}
+              <TabsContent value="tone" className="space-y-4">
+                <h3 className="text-lg font-medium">Select Crystal Tone</h3>
+                <div className="pt-8 pb-4">
+                  <div className="flex justify-between mb-2">
+                    <span>Bass C (C3)</span>
+                    <span>Middle C</span>
+                    <span>High C (C5)</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={toneOptions.length - 1}
+                    step={1}
+                    value={[
+                      toneOptions.findIndex(
+                        (t) => t.frequency === selectedTone.frequency
+                      ),
+                    ]}
+                    onValueChange={(value) => {
+                      setSelectedTone(toneOptions[value[0]]);
+                      updatePreview();
+                    }}
+                  />
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                  <div className="flex justify-between">
+                    <div>
+                      <h4>Selected Note:</h4>
+                      <p className="text-xl font-bold">{selectedTone.note}</p>
+                    </div>
+                    <div>
+                      <h4>Frequency:</h4>
+                      <p className="text-xl font-bold">
+                        {selectedTone.frequency} Hz
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => {
+                        // Play the tone
+                        const audioContext = new (window.AudioContext ||
+                          window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        oscillator.type = "sine";
+                        oscillator.frequency.value = selectedTone.frequency;
+                        oscillator.connect(audioContext.destination);
+                        oscillator.start();
+                        setTimeout(() => oscillator.stop(), 1000);
+                      }}
+                      className="w-full"
+                    >
+                      Play Tone
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Preview Section */}
+          <div className="col-span-1 bg-gray-800 rounded-lg p-4 flex flex-col">
+            <h3 className="text-lg font-medium mb-4">Crystal Preview</h3>
+            <div className="flex-1 flex items-center justify-center bg-black rounded-lg">
+              {previewCrystal && (
+                <div
+                  style={{ filter: `drop-shadow(0 0 10px ${selectedColor})` }}
+                >
+                  <img
+                    src={selectedCrystal}
+                    alt="Crystal preview"
+                    className="max-h-[200px] max-w-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="mt-4">
+              <Button
+                onClick={handleAddCrystal}
+                disabled={!previewCrystal}
+                className="w-full"
+              >
+                Place Crystal in Garden
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default NewCrystalWorkflow;

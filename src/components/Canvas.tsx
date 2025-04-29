@@ -6,9 +6,9 @@ import * as Tone from "tone";
 const Canvas: React.FC<{
   backgroundImage: string;
   crystals: ICrystal[];
-  crystalPathToImageMap: Map<string, HTMLImageElement>;
+  // crystalPathToImageMap: Map<string, HTMLImageElement>;
 }> = (props) => {
-  const { backgroundImage, crystals, crystalPathToImageMap } = props;
+  const { backgroundImage, crystals } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
@@ -165,16 +165,13 @@ const Canvas: React.FC<{
       crystal: ICrystal,
       isActivated: boolean
     ) => {
-      const { x, y, scale, color, spritePath } = crystal;
-
-      const crystalImage = crystalPathToImageMap.get(spritePath);
-
+      // const { x, y, scale, color, spritePath } = crystal;
+      // const crystalImage = crystalPathToImageMap.get(spritePath);
       // Draw crystal
-      console.log("Drawing crystal", x, y, isActivated);
-      crystalImage &&
-        ctx.drawImage(crystalImage, x, y, 128 * scale, 128 * scale);
+      // console.log("Drawing crystal", x, y, isActivated);
+      // crystalImage &&
+      //   ctx.drawImage(crystalImage, x, y, 128 * scale, 128 * scale);
       // ctx.arc(x, y, radius, 0, 2 * Math.PI);
-
       // Fill with color based on activation state
       // if (isActivated) {
       //   // Activated crystal: use its color with high brightness
@@ -186,9 +183,7 @@ const Canvas: React.FC<{
       //   ctx.fillStyle = "#33ff33";
       //   ctx.shadowBlur = 0;
       // }
-
       // ctx.fill();
-
       // // Reset shadow for other drawings
       // ctx.shadowBlur = 0;
     },
