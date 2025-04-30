@@ -16,6 +16,9 @@ const Canvas: React.FC<{
   );
   const [backgroundOutline, setBackgroundOutline] =
     useState<HTMLImageElement | null>(null);
+  const [canvasMode, setCanvasMode] = useState<
+    "Crystal Placement" | "Emit Pulse"
+  >("Emit Pulse");
   const [pulsingState, setPulsingState] = useState<{
     currentRadius: number;
     x: number;
@@ -110,14 +113,22 @@ const Canvas: React.FC<{
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Start a new pulse
-    setPulsingState({
-      x,
-      y,
-      currentRadius: 32, // Starting radius
-      lastFrameTime: performance.now(),
-    });
+    if (canvasMode === "Emit Pulse") {
+      // Start a new pulse
+      setPulsingState({
+        x,
+        y,
+        currentRadius: 32, // Starting radius
+        lastFrameTime: performance.now(),
+      });
+    }
+
+    if (canvasMode === "Crystal Placement") {
+    }
   };
+
+  /** To be implemented */
+  const handleCanvasDrag = () => {};
 
   const drawSoundPulse = useCallback(
     (
