@@ -177,7 +177,7 @@ const NewCrystalWorkflow = ({
               <TabsContent value="crystal" className="space-y-4 ">
                 <h3 className="text-lg font-medium">Select Crystal Shape</h3>
                 <Carousel className="text-black w-4/5 mx-auto">
-                  <CarouselContent className="">
+                  <CarouselContent>
                     {crystalOptions.map((crystal, index) => (
                       <CarouselItem key={index}>
                         <div
@@ -188,7 +188,7 @@ const NewCrystalWorkflow = ({
                           }`}
                           onClick={() => {
                             setSelectedCrystal(crystal);
-                            setTimeout(() => updatePreview(), 0); // Run after state updates
+                            setTimeout(() => updatePreview(), 10); // Run after state updates
                           }}
                         >
                           <img
