@@ -48,6 +48,20 @@ function App() {
     setCrystals((prevCrystals) => [...prevCrystals, newCrystal]);
   };
 
+  // Handler to mark a crystal as placed (isPlaced = true)
+  const handleCrystalPlacementDone = (
+    crystalIndex: number,
+    x: number,
+    y: number
+  ) => {
+    console.debug("Crystal placement done for index:", crystalIndex);
+    setCrystals((prevCrystals) =>
+      prevCrystals.map((crystal, index) =>
+        index === crystalIndex ? { ...crystal, x, y, isPlaced: true } : crystal
+      )
+    );
+  };
+
   return (
     <div
       className="flex flex-col w-screen h-screen pt-2"
@@ -73,9 +87,12 @@ function App() {
         </Select>
       </div>
       <div className="mx-auto">
-        <Canvas backgroundImage={backgroundSrc} crystals={crystals} />
+        <Canvas
+          backgroundImage={backgroundSrc}
+          crystals={crystals}
+          onCrystalPlacementDone={handleCrystalPlacementDone}
+        />
       </div>
-
       {/* Add the NewCrystalWorkflow component */}
       <NewCrystalWorkflow
         onAddCrystal={handleAddCrystal}

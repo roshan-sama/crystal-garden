@@ -6,11 +6,9 @@ import * as Tone from "tone";
 const Canvas: React.FC<{
   backgroundImage: string;
   crystals: ICrystal[];
-  onCrystalPlaced?: (crystalIndex: number, x: number, y: number) => void;
-  onCrystalPlacementDone?: (crystalIndex: number) => void;
+  onCrystalPlacementDone?: (crystalIndex: number, x: number, y: number) => void;
 }> = (props) => {
-  const { backgroundImage, crystals, onCrystalPlaced, onCrystalPlacementDone } =
-    props;
+  const { backgroundImage, crystals, onCrystalPlacementDone } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
@@ -191,11 +189,6 @@ const Canvas: React.FC<{
       x: coords.x,
       y: coords.y,
     });
-
-    // Update the actual crystal position
-    if (onCrystalPlaced) {
-      onCrystalPlaced(placementState.crystalIndex, coords.x, coords.y);
-    }
   };
 
   // Handle pointer move for crystal dragging
@@ -212,11 +205,6 @@ const Canvas: React.FC<{
       x: coords.x,
       y: coords.y,
     });
-
-    // Update the actual crystal position in real-time
-    if (onCrystalPlaced) {
-      onCrystalPlaced(placementState.crystalIndex, coords.x, coords.y);
-    }
   };
 
   // Handle pointer up
@@ -239,11 +227,6 @@ const Canvas: React.FC<{
       y: coords.y,
       isDragging: false,
     });
-
-    // Update the crystal position
-    if (onCrystalPlaced) {
-      onCrystalPlaced(placementState.crystalIndex, coords.x, coords.y);
-    }
   };
 
   // Handle "Done" button click
@@ -252,7 +235,11 @@ const Canvas: React.FC<{
 
     // Mark the crystal as placed
     if (onCrystalPlacementDone) {
-      onCrystalPlacementDone(placementState.crystalIndex);
+      onCrystalPlacementDone(
+        placementState.crystalIndex,
+        placementState.x,
+        placementState.y
+      );
     }
 
     // Reset state and switch back to Emit Pulse mode
