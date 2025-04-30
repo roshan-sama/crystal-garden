@@ -28,7 +28,7 @@ const crystalOptions = [
   "./images/crystals/base-crystal.png",
   "./images/crystals/butterfly-crystal.png",
   "./images/crystals/cube-crystal.png",
-  "./images/crystals/part-crystal.png",
+  "./images/crystals/part-circle-crystal.png",
   "./images/crystals/triangle-crystal.png",
 ];
 
