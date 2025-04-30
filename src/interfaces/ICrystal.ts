@@ -13,4 +13,6 @@ export interface ICrystal {
   crystalCanvas: HTMLCanvasElement;
   /** Path to the path of the base image of crystal*/
   spritePath: string;
+  /** Whether or not this crystal is placed */
+  isPlaced: boolean;
 }

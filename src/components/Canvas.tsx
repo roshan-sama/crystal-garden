@@ -6,9 +6,9 @@ import * as Tone from "tone";
 const Canvas: React.FC<{
   backgroundImage: string;
   crystals: ICrystal[];
-  // crystalPathToImageMap: Map<string, HTMLImageElement>;
+  onCrystalPlaced?: (crystalIndex: number, x: number, y: number) => void;
 }> = (props) => {
-  const { backgroundImage, crystals } = props;
+  const { backgroundImage, crystals, onCrystalPlaced } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [backgroundImg, setBackgroundImg] = useState<HTMLImageElement | null>(
@@ -30,8 +30,28 @@ const Canvas: React.FC<{
     new Set()
   );
 
+  // Add state for tracking the crystal being dragged
+  const [dragState, setDragState] = useState<{
+    isDragging: boolean;
+    crystalIndex: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+
   // Initialize synthesizer for crystal tones
   const synth = useRef<Tone.Synth | null>(null);
+
+  // Auto-switch to Crystal Placement mode when a new crystal is added
+  useEffect(() => {
+    // Check if a new crystal was added that needs placement
+    const newCrystal = crystals.findIndex(
+      (crystal) => crystal.x === 0 && crystal.y === 0 && !crystal.isPlaced
+    );
+
+    if (newCrystal !== -1) {
+      setCanvasMode("Crystal Placement");
+    }
+  }, [crystals]);
 
   useEffect(() => {
     // Initialize the synthesizer
@@ -124,11 +144,98 @@ const Canvas: React.FC<{
     }
 
     if (canvasMode === "Crystal Placement") {
+      // Find the crystal that needs to be placed (unplaced crystal)
+      const crystalToPlace = crystals.findIndex(
+        (crystal) => !crystal.isPlaced || (crystal.x === 0 && crystal.y === 0)
+      );
+
+      if (crystalToPlace !== -1) {
+        // Place the crystal at the clicked position
+        if (onCrystalPlaced) {
+          onCrystalPlaced(crystalToPlace, x, y);
+          // Switch back to Emit Pulse mode after placement
+          setCanvasMode("Emit Pulse");
+        }
+      }
     }
   };
 
-  /** To be implemented */
-  const handleCanvasDrag = () => {};
+  // Handle mouse down for drag start
+  const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (canvasMode !== "Crystal Placement") return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // Find the crystal to place (should be the newest one)
+    const crystalToPlace = crystals.findIndex(
+      (crystal) => !crystal.isPlaced || (crystal.x === 0 && crystal.y === 0)
+    );
+
+    if (crystalToPlace !== -1) {
+      // Start dragging this crystal
+      setDragState({
+        isDragging: true,
+        crystalIndex: crystalToPlace,
+        offsetX: 0, // Center the crystal at cursor
+        offsetY: 0,
+      });
+    }
+  };
+
+  // Implement drag functionality
+  const handleCanvasDrag = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!dragState || !dragState.isDragging) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // Update crystal position during drag (temporary, only for display)
+    // We'll use a local drag state for display, but won't update the actual crystal
+    // until mouse up
+    setDragState({
+      ...dragState,
+      offsetX: mouseX,
+      offsetY: mouseY,
+    });
+  };
+
+  // Handle mouse up to finalize crystal placement
+  const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!dragState || !dragState.isDragging) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // Finalize crystal placement
+    if (onCrystalPlaced) {
+      onCrystalPlaced(dragState.crystalIndex, mouseX, mouseY);
+      // Switch back to Emit Pulse mode after placement
+      setCanvasMode("Emit Pulse");
+    }
+
+    // Reset drag state
+    setDragState(null);
+  };
+
+  // Handle mouse move for crystal dragging
+  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (dragState && dragState.isDragging) {
+      handleCanvasDrag(event);
+    }
+  };
 
   const drawSoundPulse = useCallback(
     (
@@ -233,8 +340,24 @@ const Canvas: React.FC<{
       // Draw all crystals
       if (crystals && crystals.length > 0) {
         crystals.forEach((crystal, index) => {
-          const isActivated = activatedCrystals.has(index);
-          drawCrystal(ctx, crystal, isActivated);
+          // If this crystal is being dragged, use the drag position instead
+          if (
+            dragState &&
+            dragState.isDragging &&
+            index === dragState.crystalIndex
+          ) {
+            // Draw a temporary version of the crystal at the drag position
+            const draggedCrystal = {
+              ...crystal,
+              x: dragState.offsetX,
+              y: dragState.offsetY,
+            };
+            drawCrystal(ctx, draggedCrystal, false);
+          } else {
+            // Draw normally
+            const isActivated = activatedCrystals.has(index);
+            drawCrystal(ctx, crystal, isActivated);
+          }
         });
       }
 
@@ -304,6 +427,18 @@ const Canvas: React.FC<{
           ctx.canvas.height
         );
       }
+
+      // Draw a placement indicator if in Crystal Placement mode
+      if (canvasMode === "Crystal Placement" && dragState) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(dragState.offsetX, dragState.offsetY, 64, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.restore();
+      }
     },
     [
       backgroundImg,
@@ -315,6 +450,8 @@ const Canvas: React.FC<{
       activatedCrystals,
       drawCrystal,
       playCrystalTone,
+      canvasMode,
+      dragState,
     ]
   );
 
@@ -348,14 +485,17 @@ const Canvas: React.FC<{
       <canvas
         ref={canvasRef}
         onClick={handleCanvasClick}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
           height: "100%",
+          cursor: canvasMode === "Crystal Placement" ? "crosshair" : "default",
         }}
-        {...props}
       />
     </div>
   );
