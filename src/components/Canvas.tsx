@@ -44,9 +44,7 @@ const Canvas: React.FC<{
   // Auto-switch to Crystal Placement mode when a new crystal is added
   useEffect(() => {
     // Check if a new crystal was added that needs placement
-    const newCrystal = crystals.findIndex(
-      (crystal) => crystal.x === 0 && crystal.y === 0 && !crystal.isPlaced
-    );
+    const newCrystal = crystals.findIndex((crystal) => !crystal.isPlaced);
 
     if (newCrystal !== -1) {
       setCanvasMode("Crystal Placement");
@@ -145,9 +143,7 @@ const Canvas: React.FC<{
 
     if (canvasMode === "Crystal Placement") {
       // Find the crystal that needs to be placed (unplaced crystal)
-      const crystalToPlace = crystals.findIndex(
-        (crystal) => !crystal.isPlaced || (crystal.x === 0 && crystal.y === 0)
-      );
+      const crystalToPlace = crystals.findIndex((crystal) => !crystal.isPlaced);
 
       if (crystalToPlace !== -1) {
         // Place the crystal at the clicked position
@@ -172,9 +168,7 @@ const Canvas: React.FC<{
     const mouseY = event.clientY - rect.top;
 
     // Find the crystal to place (should be the newest one)
-    const crystalToPlace = crystals.findIndex(
-      (crystal) => !crystal.isPlaced || (crystal.x === 0 && crystal.y === 0)
-    );
+    const crystalToPlace = crystals.findIndex((crystal) => !crystal.isPlaced);
 
     if (crystalToPlace !== -1) {
       // Start dragging this crystal
@@ -293,7 +287,13 @@ const Canvas: React.FC<{
       // Draw crystal
       // console.log("Drawing crystal", x, y, crystalCanvas, isActivated);
       crystalCanvas &&
-        ctx.drawImage(crystalCanvas, x, y, 128 * scale, 128 * scale);
+        ctx.drawImage(
+          crystalCanvas,
+          x - 56 * scale,
+          y - 56 * scale,
+          128 * scale,
+          128 * scale
+        );
       // ctx.arc(x, y, radius, 0, 2 * Math.PI);
       // Fill with color based on activation state
       // if (isActivated) {

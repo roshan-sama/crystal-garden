@@ -136,6 +136,7 @@ const NewCrystalWorkflow = ({
         x: 0, // These will be set when the crystal is placed
         y: 0,
         crystalCanvas: previewCanvas,
+        isPlaced: false,
       });
     };
   };
