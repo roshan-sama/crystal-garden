@@ -25,11 +25,11 @@ import { Slider } from "../components/ui/slider";
 import { ICrystal } from "@/interfaces/ICrystal";
 
 const crystalOptions = [
-  "/images/crystals/base-crystal.png",
-  "/images/crystals/butterfly-crystal.png",
-  "/images/crystals/cube-crystal.png",
-  "/images/crystals/part-crystal.png",
-  "/images/crystals/triangle-crystal.png",
+  "./images/crystals/base-crystal.png",
+  "./images/crystals/butterfly-crystal.png",
+  "./images/crystals/cube-crystal.png",
+  "./images/crystals/part-crystal.png",
+  "./images/crystals/triangle-crystal.png",
 ];
 
 const colorOptions = [

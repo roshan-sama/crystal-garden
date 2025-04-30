@@ -117,7 +117,7 @@ const Canvas: React.FC<{
         console.error("Error loading the background image:", err);
       };
       const outlineImg = new Image();
-      outlineImg.src = "/images/garden-outline.png";
+      outlineImg.src = "./images/garden-outline.png";
       outlineImg.onload = () => {
         setBackgroundOutline(outlineImg);
       };

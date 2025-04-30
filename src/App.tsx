@@ -17,7 +17,7 @@ import { ICrystal } from "./interfaces/ICrystal";
 
 function App() {
   const [backgroundSrc, setBackgroundSrc] = useState(
-    "/images/abs158-floral.png"
+    "./images/abs158-floral.png"
   );
   const crystalPathToImageMap = new Map<string, HTMLImageElement>();
   const canvasHeight = 648; // pixels
@@ -26,11 +26,11 @@ function App() {
 
   useEffect(() => {
     const crystalPaths = [
-      "/images/crystals/base-crystal.png",
-      "/images/crystals/butterfly-crystal.png",
-      "/images/crystals/cube-crystal.png",
-      "/images/crystals/part-crystal.png",
-      "/images/crystals/triangle-crystal.png",
+      "./images/crystals/base-crystal.png",
+      "./images/crystals/butterfly-crystal.png",
+      "./images/crystals/cube-crystal.png",
+      "./images/crystals/part-crystal.png",
+      "./images/crystals/triangle-crystal.png",
     ];
     crystalPaths.forEach((path) => {
       const img = new Image();
@@ -76,12 +76,12 @@ function App() {
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Gardens</SelectLabel>
-              <SelectItem value="/images/abs158-floral.png">Floral</SelectItem>
-              <SelectItem value="/images/abs160-feline.png">Feline</SelectItem>
-              <SelectItem value="/images/abs171-finish.png">Finish</SelectItem>
-              <SelectItem value="/images/abs179-pint.png">Pint</SelectItem>
-              <SelectItem value="/images/abs208-velcro.png">Velcro</SelectItem>
-              <SelectItem value="/images/abs218-clear.png">Clear</SelectItem>
+              <SelectItem value="./images/abs158-floral.png">Floral</SelectItem>
+              <SelectItem value="./images/abs160-feline.png">Feline</SelectItem>
+              <SelectItem value="./images/abs171-finish.png">Finish</SelectItem>
+              <SelectItem value="./images/abs179-pint.png">Pint</SelectItem>
+              <SelectItem value="./images/abs208-velcro.png">Velcro</SelectItem>
+              <SelectItem value="./images/abs218-clear.png">Clear</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
