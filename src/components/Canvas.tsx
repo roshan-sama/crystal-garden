@@ -167,7 +167,7 @@ const Canvas: React.FC<{
     ) => {
       const { x, y, scale, color, crystalCanvas } = crystal;
       // Draw crystal
-      // console.log("Drawing crystal", x, y, isActivated);
+      // console.log("Drawing crystal", x, y, crystalCanvas, isActivated);
       crystalCanvas &&
         ctx.drawImage(crystalCanvas, x, y, 128 * scale, 128 * scale);
       // ctx.arc(x, y, radius, 0, 2 * Math.PI);
@@ -182,7 +182,7 @@ const Canvas: React.FC<{
       //   ctx.fillStyle = "#33ff33";
       //   ctx.shadowBlur = 0;
       // }
-      // ctx.fill();
+      ctx.fill();
       // // Reset shadow for other drawings
       // ctx.shadowBlur = 0;
     },
@@ -196,7 +196,6 @@ const Canvas: React.FC<{
     // Convert frequency to note duration based on its value
     // Higher frequencies get shorter durations
     const duration = Math.max(0.5, 1.5 - frequency / 1000);
-    console.log("layg ton");
     synth.current.triggerAttackRelease(frequency, duration);
   }, []);
 

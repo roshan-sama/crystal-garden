@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -83,28 +83,66 @@ const NewCrystalWorkflow = ({
   const [selectedTone, setSelectedTone] = useState(toneOptions[7]); // Default to middle C
   const [previewCrystal, setPreviewCrystal] = useState<ICrystal | null>(null);
 
-  // Create preview when selections change
-  const updatePreview = () => {
-    // In a real implementation, you might want to use a ref to a canvas element here
-    // to generate the crystalCanvas property
-    const dummyCanvas = document.createElement("canvas");
+  // Call updatePreview when the modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      updatePreview();
+    }
+  }, [isOpen]);
 
-    setPreviewCrystal({
-      spritePath: selectedCrystal,
-      color: selectedColor,
-      tone: selectedTone.frequency,
-      scale: 1,
-      x: 0, // These will be set when the crystal is placed
-      y: 0,
-      crystalCanvas: dummyCanvas,
-    });
+  // Create and update preview canvas
+  const updatePreview = () => {
+    // Create a 128x128 canvas
+    const previewCanvas = document.createElement("canvas");
+    previewCanvas.width = 128;
+    previewCanvas.height = 128;
+    const ctx = previewCanvas.getContext("2d");
+
+    if (!ctx) {
+      console.error("ctx was null for previewCanvas");
+      return;
+    }
+    // Load the crystal image
+    const img = new Image();
+    img.src = selectedCrystal;
+
+    img.onload = () => {
+      // Clear canvas
+      ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+      // Draw the crystal image centered on the canvas
+      const xPos = (previewCanvas.width - img.width) / 2;
+      const yPos = (previewCanvas.height - img.height) / 2;
+      ctx.drawImage(img, xPos, yPos);
+
+      // Apply color tint/filter
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.fillStyle = selectedColor;
+      ctx.globalAlpha = 0.5; // Adjust opacity for tint effect
+      ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+      // Reset composite operation
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+
+      // Create the crystal object with the canvas
+      setPreviewCrystal({
+        spritePath: selectedCrystal,
+        color: selectedColor,
+        tone: selectedTone.frequency,
+        scale: 1,
+        x: 0, // These will be set when the crystal is placed
+        y: 0,
+        crystalCanvas: previewCanvas,
+      });
+    };
   };
 
   const handleAddCrystal = () => {
     const newCrystal = {
       ...previewCrystal,
-      x: canvasCenter.x,
-      y: canvasCenter.y,
+      x: canvasCenter.x / 2,
+      y: canvasCenter.y / 2,
     } as ICrystal;
 
     onAddCrystal(newCrystal);
@@ -138,7 +176,7 @@ const NewCrystalWorkflow = ({
               {/* Crystal Selection Tab */}
               <TabsContent value="crystal" className="space-y-4">
                 <h3 className="text-lg font-medium">Select Crystal Shape</h3>
-                <Carousel className="w-4/5 mx-auto text-black">
+                <Carousel className="w-full">
                   <CarouselContent>
                     {crystalOptions.map((crystal, index) => (
                       <CarouselItem key={index}>
@@ -150,7 +188,7 @@ const NewCrystalWorkflow = ({
                           }`}
                           onClick={() => {
                             setSelectedCrystal(crystal);
-                            updatePreview();
+                            setTimeout(() => updatePreview(), 0); // Run after state updates
                           }}
                         >
                           <img
@@ -255,11 +293,24 @@ const NewCrystalWorkflow = ({
                 <div
                   style={{ filter: `drop-shadow(0 0 10px ${selectedColor})` }}
                 >
-                  <img
-                    src={selectedCrystal}
-                    alt="Crystal preview"
-                    className="max-h-[200px] max-w-full object-contain"
-                  />
+                  {/* Using the canvas directly instead of an img tag */}
+                  {previewCrystal.crystalCanvas && (
+                    <div
+                      style={{
+                        width: "200px",
+                        height: "200px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={previewCrystal.crystalCanvas.toDataURL()}
+                        alt="Crystal preview"
+                        className="max-h-[200px] max-w-full object-contain"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

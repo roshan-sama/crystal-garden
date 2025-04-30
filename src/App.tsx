@@ -44,7 +44,7 @@ function App() {
 
   // Handler function to add a new crystal to the collection
   const handleAddCrystal = (newCrystal: ICrystal) => {
-    console.debug("Adding crystal");
+    console.debug("Adding crystal", newCrystal);
     setCrystals((prevCrystals) => [...prevCrystals, newCrystal]);
   };
 
