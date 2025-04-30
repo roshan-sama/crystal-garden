@@ -78,17 +78,19 @@ const NewCrystalWorkflow = ({
   canvasCenter: { x: number; y: number };
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCrystal, setSelectedCrystal] = useState(crystalOptions[0]);
+  const [selectedCrystal, setSelectedCrystal] = useState<string>(
+    crystalOptions[0]
+  );
   const [selectedColor, setSelectedColor] = useState(colorOptions[0].value);
   const [selectedTone, setSelectedTone] = useState(toneOptions[7]); // Default to middle C
   const [previewCrystal, setPreviewCrystal] = useState<ICrystal | null>(null);
 
-  // Call updatePreview when the modal is opened
+  // Update preview whenever any of these dependencies change
   useEffect(() => {
     if (isOpen) {
       updatePreview();
     }
-  }, [isOpen]);
+  }, [isOpen, selectedCrystal, selectedColor, selectedTone]);
 
   // Create and update preview canvas
   const updatePreview = () => {
@@ -139,6 +141,8 @@ const NewCrystalWorkflow = ({
   };
 
   const handleAddCrystal = () => {
+    if (!previewCrystal) return;
+
     const newCrystal = {
       ...previewCrystal,
       x: canvasCenter.x / 2,
@@ -147,6 +151,22 @@ const NewCrystalWorkflow = ({
 
     onAddCrystal(newCrystal);
     setIsOpen(false);
+  };
+
+  // Handlers for state changes
+  const handleCrystalSelect = (crystal: string) => {
+    setSelectedCrystal(crystal);
+    // No need to manually call updatePreview here
+  };
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    // No need to manually call updatePreview here
+  };
+
+  const handleToneSelect = (index: number) => {
+    setSelectedTone(toneOptions[index]);
+    // No need to manually call updatePreview here
   };
 
   return (
@@ -186,10 +206,7 @@ const NewCrystalWorkflow = ({
                               ? "ring-2 ring-white"
                               : ""
                           }`}
-                          onClick={() => {
-                            setSelectedCrystal(crystal);
-                            setTimeout(() => updatePreview(), 10); // Run after state updates
-                          }}
+                          onClick={() => handleCrystalSelect(crystal)}
                         >
                           <img
                             src={crystal}
@@ -216,10 +233,7 @@ const NewCrystalWorkflow = ({
                         selectedColor === color.value ? "ring-2 ring-white" : ""
                       }`}
                       style={{ backgroundColor: color.value }}
-                      onClick={() => {
-                        setSelectedColor(color.value);
-                        updatePreview();
-                      }}
+                      onClick={() => handleColorSelect(color.value)}
                       title={color.name}
                     />
                   ))}
@@ -244,10 +258,7 @@ const NewCrystalWorkflow = ({
                         (t) => t.frequency === selectedTone.frequency
                       ),
                     ]}
-                    onValueChange={(value) => {
-                      setSelectedTone(toneOptions[value[0]]);
-                      updatePreview();
-                    }}
+                    onValueChange={(value) => handleToneSelect(value[0])}
                   />
                 </div>
                 <div className="bg-gray-800 p-4 rounded-lg">
@@ -289,28 +300,25 @@ const NewCrystalWorkflow = ({
           <div className="col-span-1 bg-gray-800 rounded-lg p-4 flex flex-col">
             <h3 className="text-lg font-medium mb-4">Crystal Preview</h3>
             <div className="flex-1 flex items-center justify-center bg-black rounded-lg">
-              {previewCrystal && (
+              {previewCrystal && previewCrystal.crystalCanvas && (
                 <div
                   style={{ filter: `drop-shadow(0 0 10px ${selectedColor})` }}
                 >
-                  {/* Using the canvas directly instead of an img tag */}
-                  {previewCrystal.crystalCanvas && (
-                    <div
-                      style={{
-                        width: "200px",
-                        height: "200px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <img
-                        src={previewCrystal.crystalCanvas.toDataURL()}
-                        alt="Crystal preview"
-                        className="max-h-[200px] max-w-full object-contain"
-                      />
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img
+                      src={previewCrystal.crystalCanvas.toDataURL()}
+                      alt="Crystal preview"
+                      className="max-h-[200px] max-w-full object-contain"
+                    />
+                  </div>
                 </div>
               )}
             </div>
