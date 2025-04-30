@@ -22,6 +22,7 @@ import {
   CarouselPrevious,
 } from "../components/ui/carousel";
 import { Slider } from "../components/ui/slider";
+import { ICrystal } from "@/interfaces/ICrystal";
 
 const crystalOptions = [
   "/images/crystals/base-crystal.png",
@@ -69,12 +70,18 @@ const toneOptions = [
   { note: "C5", frequency: 523.25 },
 ];
 
-const NewCrystalWorkflow = ({ onAddCrystal }) => {
+const NewCrystalWorkflow = ({
+  onAddCrystal,
+  canvasCenter,
+}: {
+  onAddCrystal: (crystal: ICrystal) => void;
+  canvasCenter: { x: number; y: number };
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCrystal, setSelectedCrystal] = useState(crystalOptions[0]);
   const [selectedColor, setSelectedColor] = useState(colorOptions[0].value);
   const [selectedTone, setSelectedTone] = useState(toneOptions[7]); // Default to middle C
-  const [previewCrystal, setPreviewCrystal] = useState(null);
+  const [previewCrystal, setPreviewCrystal] = useState<ICrystal | null>(null);
 
   // Create preview when selections change
   const updatePreview = () => {
@@ -96,9 +103,9 @@ const NewCrystalWorkflow = ({ onAddCrystal }) => {
   const handleAddCrystal = () => {
     const newCrystal = {
       ...previewCrystal,
-      x: Math.random() * 800 + 100, // Random position for now
-      y: Math.random() * 400 + 100, // Could be improved with drag and drop
-    };
+      x: canvasCenter.x,
+      y: canvasCenter.y,
+    } as ICrystal;
 
     onAddCrystal(newCrystal);
     setIsOpen(false);
@@ -222,8 +229,7 @@ const NewCrystalWorkflow = ({ onAddCrystal }) => {
                     <Button
                       onClick={() => {
                         // Play the tone
-                        const audioContext = new (window.AudioContext ||
-                          window.webkitAudioContext)();
+                        const audioContext = new AudioContext();
                         const oscillator = audioContext.createOscillator();
                         oscillator.type = "sine";
                         oscillator.frequency.value = selectedTone.frequency;

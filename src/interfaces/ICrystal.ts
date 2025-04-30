@@ -9,6 +9,8 @@ export interface ICrystal {
   color: string;
   /** Simple tone in Hz */
   tone: number;
-  /** Path to the image of this crystal */
+  /** Canvas of the customized crystal */
   crystalCanvas: HTMLCanvasElement;
+  /** Path to the path of the base image of crystal*/
+  spritePath: string;
 }

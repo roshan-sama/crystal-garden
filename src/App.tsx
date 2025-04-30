@@ -20,6 +20,8 @@ function App() {
     "/images/abs158-floral.png"
   );
   const crystalPathToImageMap = new Map<string, HTMLImageElement>();
+  const canvasHeight = 648; // pixels
+  const canvasWidth = 1152; // pixels
   const [crystals, setCrystals] = useState<ICrystal[]>([]);
 
   useEffect(() => {
@@ -42,6 +44,7 @@ function App() {
 
   // Handler function to add a new crystal to the collection
   const handleAddCrystal = (newCrystal: ICrystal) => {
+    console.debug("Adding crystal");
     setCrystals((prevCrystals) => [...prevCrystals, newCrystal]);
   };
 
@@ -74,7 +77,10 @@ function App() {
       </div>
 
       {/* Add the NewCrystalWorkflow component */}
-      <NewCrystalWorkflow onAddCrystal={handleAddCrystal} />
+      <NewCrystalWorkflow
+        onAddCrystal={handleAddCrystal}
+        canvasCenter={{ x: canvasWidth, y: canvasHeight }}
+      />
     </div>
   );
 }

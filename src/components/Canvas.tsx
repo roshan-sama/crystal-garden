@@ -165,12 +165,11 @@ const Canvas: React.FC<{
       crystal: ICrystal,
       isActivated: boolean
     ) => {
-      // const { x, y, scale, color, spritePath } = crystal;
-      // const crystalImage = crystalPathToImageMap.get(spritePath);
+      const { x, y, scale, color, crystalCanvas } = crystal;
       // Draw crystal
       // console.log("Drawing crystal", x, y, isActivated);
-      // crystalImage &&
-      //   ctx.drawImage(crystalImage, x, y, 128 * scale, 128 * scale);
+      crystalCanvas &&
+        ctx.drawImage(crystalCanvas, x, y, 128 * scale, 128 * scale);
       // ctx.arc(x, y, radius, 0, 2 * Math.PI);
       // Fill with color based on activation state
       // if (isActivated) {
