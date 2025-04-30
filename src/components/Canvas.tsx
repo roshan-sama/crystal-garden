@@ -299,7 +299,7 @@ const Canvas: React.FC<{
       crystal: ICrystal,
       isActivated: boolean
     ) => {
-      const { x, y, scale, color, crystalCanvas, spritePath } = crystal;
+      const { x, y, scale, crystalCanvas } = crystal;
       // Draw crystal
       // console.log("Drawing crystal", x, y, crystalCanvas, isActivated);
       crystalCanvas &&
@@ -341,11 +341,7 @@ const Canvas: React.FC<{
 
   // Continue with your existing draw function, but add the Done button rendering
   const draw = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      frameCount: number,
-      currentTime: number
-    ) => {
+    (ctx: CanvasRenderingContext2D, currentTime: number) => {
       // Clear the entire canvas
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -480,7 +476,7 @@ const Canvas: React.FC<{
 
     const render = (time: number) => {
       frameCount++;
-      draw(context, frameCount, time);
+      draw(context, time);
       animationFrameId = window.requestAnimationFrame(render);
     };
 

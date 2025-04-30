@@ -113,8 +113,8 @@ const NewCrystalWorkflow = ({
       ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
       // Draw the crystal image centered on the canvas
-      const xPos = (previewCanvas.width - img.width) / 2;
-      const yPos = (previewCanvas.height - img.height) / 2;
+      // const xPos = (previewCanvas.width - img.width) / 2;
+      // const yPos = (previewCanvas.height - img.height) / 2;
       ctx.drawImage(img, 0, 0, 128, 128);
 
       // Apply color tint/filter
