@@ -133,8 +133,11 @@ const Canvas: React.FC<{
       // Calculate transparency: starts at 100% opacity (0% transparent) and fades to 20% opacity (80% transparent)
       const alpha = 0.6 * (1 - progress * 0.8);
 
-      // Calculate line width: starts at 4px and grows to 18px
+      // Calculate line width: starts at 2px and grows to 32px
       const lineWidth = 2 + progress * 30;
+
+      // Save the current context state
+      ctx.save();
 
       // Set stroke style
       ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -144,6 +147,9 @@ const Canvas: React.FC<{
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, 2 * Math.PI);
       ctx.stroke();
+
+      // Restore the context state
+      ctx.restore();
     },
     []
   );
@@ -165,7 +171,7 @@ const Canvas: React.FC<{
       crystal: ICrystal,
       isActivated: boolean
     ) => {
-      const { x, y, scale, color, crystalCanvas } = crystal;
+      const { x, y, scale, color, crystalCanvas, spritePath } = crystal;
       // Draw crystal
       // console.log("Drawing crystal", x, y, crystalCanvas, isActivated);
       crystalCanvas &&
@@ -182,7 +188,7 @@ const Canvas: React.FC<{
       //   ctx.fillStyle = "#33ff33";
       //   ctx.shadowBlur = 0;
       // }
-      ctx.fill();
+      // ctx.fill();
       // // Reset shadow for other drawings
       // ctx.shadowBlur = 0;
     },
@@ -205,16 +211,30 @@ const Canvas: React.FC<{
       frameCount: number,
       currentTime: number
     ) => {
+      // Clear the entire canvas
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-      // Draw a sound pulse if needed
+      // If we have a background image, draw it first
+      if (backgroundImg && imgLoaded) {
+        ctx.drawImage(backgroundImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+      }
+
+      // Draw all crystals
+      if (crystals && crystals.length > 0) {
+        crystals.forEach((crystal, index) => {
+          const isActivated = activatedCrystals.has(index);
+          drawCrystal(ctx, crystal, isActivated);
+        });
+      }
+
+      // Draw a sound pulse if needed (on top of everything else)
       if (pulsingState) {
         const { x, y, currentRadius, lastFrameTime } = pulsingState;
 
         // Calculate time since last frame in seconds
         const deltaTime = (currentTime - lastFrameTime) / 1000;
 
-        // pulseVelocity = 1322 px / 3.5 seconds = 377.7 px/s
+        // pulseVelocity = 1322 px / 2.5 seconds = 528.8 px/s
         const pulseVelocity = 1322 / 2.5;
 
         // Calculate new radius based on velocity and time elapsed
@@ -263,12 +283,15 @@ const Canvas: React.FC<{
         }
       }
 
-      // Draw all crystals (inactive by default)
-      if (crystals && crystals.length > 0) {
-        crystals.forEach((crystal, index) => {
-          const isActivated = activatedCrystals.has(index);
-          drawCrystal(ctx, crystal, isActivated);
-        });
+      // Draw the outline on top if we have it
+      if (backgroundOutline) {
+        ctx.drawImage(
+          backgroundOutline,
+          0,
+          0,
+          ctx.canvas.width,
+          ctx.canvas.height
+        );
       }
     },
     [
@@ -311,22 +334,6 @@ const Canvas: React.FC<{
 
   return (
     <div style={{ position: "relative", width: "1152px", height: "648px" }}>
-      {/* Background image layer */}
-      {backgroundImg && imgLoaded && (
-        <img
-          src={backgroundImage}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-          }}
-          alt="Background"
-        />
-      )}
-
-      {/* Main canvas for animations */}
       <canvas
         ref={canvasRef}
         onClick={handleCanvasClick}
@@ -339,22 +346,6 @@ const Canvas: React.FC<{
         }}
         {...props}
       />
-
-      {/* Outline layer on top */}
-      {backgroundOutline && (
-        <img
-          src="/images/garden-outline.png"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-          }}
-          alt="Outline"
-        />
-      )}
     </div>
   );
 };
