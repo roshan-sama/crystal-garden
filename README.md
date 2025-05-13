@@ -1,3 +1,6 @@
+# New features:
+1) Better sounds for tones https://www.youtube.com/watch?v=j5d179VEczg
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
