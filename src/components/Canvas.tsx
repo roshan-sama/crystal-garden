@@ -1,7 +1,18 @@
 import { ICrystal } from "@/interfaces/ICrystal";
 import React, { useRef, useEffect, useState, useCallback } from "react";
-// Import a sound library for crystal tones
 import * as Tone from "tone";
+
+// I have this "Canvas" component that I've added a lot of functionality to, and its doing too much. What's a good way to split this component up into smaller ones?
+
+// I'm planning on adding these features next:
+
+// 1) Ability to rotate crystals during placement
+
+// 2) Ability to scale crystals during placement
+
+// 3) Animating crystals when the circular pulse has hit them, and is still moving
+
+// 4) Animating the pulse slightly differently
 
 const Canvas: React.FC<{
   backgroundImage: string;

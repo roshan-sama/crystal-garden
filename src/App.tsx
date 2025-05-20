@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "./components/ui/select";
 import { ICrystal } from "./interfaces/ICrystal";
+import CanvasContainer from "./components/garden/CanvasContainer";
 
 function App() {
   const [backgroundSrc, setBackgroundSrc] = useState(
@@ -52,14 +53,22 @@ function App() {
   const handleCrystalPlacementDone = (
     crystalIndex: number,
     x: number,
-    y: number
+    y: number,
+    rotation: number,
+    scale: number
   ) => {
     console.debug("Crystal placement done for index:", crystalIndex);
-    setCrystals((prevCrystals) =>
-      prevCrystals.map((crystal, index) =>
-        index === crystalIndex ? { ...crystal, x, y, isPlaced: true } : crystal
-      )
-    );
+    const updatedCrystals = [...crystals];
+    updatedCrystals[crystalIndex] = {
+      ...updatedCrystals[crystalIndex],
+      x,
+      y,
+      rotation,
+      scale,
+      isPlaced: true,
+    };
+
+    setCrystals(updatedCrystals);
   };
 
   return (
@@ -87,7 +96,7 @@ function App() {
         </Select>
       </div>
       <div className="mx-auto">
-        <Canvas
+        <CanvasContainer
           backgroundImage={backgroundSrc}
           crystals={crystals}
           onCrystalPlacementDone={handleCrystalPlacementDone}

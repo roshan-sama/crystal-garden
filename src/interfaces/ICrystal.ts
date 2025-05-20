@@ -4,13 +4,15 @@ export interface ICrystal {
   /** y coordinate of position on canvas */
   y: number;
   /** Scale, ranges 1 to 32 */
-  scale: number;
+  scale?: number;
+  /** Rotation in radians */
+  rotation?: number;
   /** Hex Color of crystal */
   color: string;
   /** Simple tone in Hz */
   tone: number;
   /** Canvas of the customized crystal */
-  crystalCanvas: HTMLCanvasElement;
+  crystalCanvas?: HTMLCanvasElement;
   /** Path to the path of the base image of crystal*/
   spritePath: string;
   /** Whether or not this crystal is placed */

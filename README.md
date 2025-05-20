@@ -1,5 +1,18 @@
 # New features:
-1) Better sounds for tones https://www.youtube.com/watch?v=j5d179VEczg
+
+1. Better sounds for tones https://www.youtube.com/watch?v=j5d179VEczg
+2. Better pulse behavior
+   a) Main pulse
+   b) Sound
+
+3. Persistence/Database
+   1. Monetizeation
+   2. User accounts
+   3. Visit friend gardens
+      1. Finding friends
+      2. Making gardens visiteable or private
+      3. Actions friends can take (inspired by farmville)
+   4. Over time achievements, crystal growth
 
 # React + TypeScript + Vite
 
@@ -27,31 +40,31 @@ export default tseslint.config({
   languageOptions: {
     // other options...
     parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
+});
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default tseslint.config({
   plugins: {
     // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
+    "react-x": reactX,
+    "react-dom": reactDom,
   },
   rules: {
     // other rules...
     // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
+    ...reactX.configs["recommended-typescript"].rules,
     ...reactDom.configs.recommended.rules,
   },
-})
+});
 ```
