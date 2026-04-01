@@ -1,0 +1,52 @@
+{
+  "crystalShapes": [
+    { "label": "Base",         "path": "images/crystals/base-crystal.png" },
+    { "label": "Butterfly",    "path": "images/crystals/butterfly-crystal.png" },
+    { "label": "Cube",         "path": "images/crystals/cube-crystal.png" },
+    { "label": "Part-Circle",  "path": "images/crystals/part-circle-crystal.png" },
+    { "label": "Triangle",     "path": "images/crystals/triangle-crystal.png" }
+  ],
+  "colorOptions": [
+    { "name": "Ruby Red",        "value": "#E32636" },
+    { "name": "Amethyst Purple", "value": "#9966CC" },
+    { "name": "Sapphire Blue",   "value": "#0F52BA" },
+    { "name": "Emerald Green",   "value": "#50C878" },
+    { "name": "Topaz Yellow",    "value": "#FFBE7D" },
+    { "name": "Diamond White",   "value": "#E6E6FA" },
+    { "name": "Onyx Black",      "value": "#353935" },
+    { "name": "Opal Teal",       "value": "#40E0D0" },
+    { "name": "Rose Quartz",     "value": "#F7CAC9" },
+    { "name": "Amber Orange",    "value": "#FFBF00" },
+    { "name": "Jade Green",      "value": "#00A86B" },
+    { "name": "Turquoise",       "value": "#40E0D0" },
+    { "name": "Aquamarine",      "value": "#7FFFD4" },
+    { "name": "Garnet",          "value": "#733635" },
+    { "name": "Peridot",         "value": "#AAFF00" },
+    { "name": "Tanzanite Blue",  "value": "#3B429F" }
+  ],
+  "toneOptions": [
+    { "note": "C3",           "frequency": 130.81 },
+    { "note": "D3",           "frequency": 146.83 },
+    { "note": "E3",           "frequency": 164.81 },
+    { "note": "F3",           "frequency": 174.61 },
+    { "note": "G3",           "frequency": 196.00 },
+    { "note": "A3",           "frequency": 220.00 },
+    { "note": "B3",           "frequency": 246.94 },
+    { "note": "C4 (Middle C)","frequency": 261.63 },
+    { "note": "D4",           "frequency": 293.66 },
+    { "note": "E4",           "frequency": 329.63 },
+    { "note": "F4",           "frequency": 349.23 },
+    { "note": "G4",           "frequency": 392.00 },
+    { "note": "A4",           "frequency": 440.00 },
+    { "note": "B4",           "frequency": 493.88 },
+    { "note": "C5",           "frequency": 523.25 }
+  ],
+  "backgrounds": [
+    { "label": "Floral", "path": "images/abs158-floral.png" },
+    { "label": "Feline", "path": "images/abs160-feline.png" },
+    { "label": "Finish", "path": "images/abs171-finish.png" },
+    { "label": "Pint",   "path": "images/abs179-pint.png" },
+    { "label": "Velcro", "path": "images/abs208-velcro.png" },
+    { "label": "Clear",  "path": "images/abs218-clear.png" }
+  ]
+}
